@@ -83,8 +83,7 @@ try:
                             header_row = results_table.find('tr')
                             if header_row:
                                 header_cells = header_row.find_all('td')
-                                # --- ИСПРАВЛЕНО: Сохраняем все столбцы, начиная с первого (Name) ---
-                                final_headers = [cell.text.strip() for cell in header_cells[0:16]]
+                                final_headers = [cell.text.strip() for cell in header_cells[2:16]]
                                 writer.writerow(final_headers)
                                 
                                 # --- Создание таблицы в SQLite ---
@@ -100,8 +99,7 @@ try:
                         for row in rows[1:]:
                             cols = row.find_all('td')
                             if len(cols) >= 16:
-                                # --- ИСПРАВЛЕНО: Сохраняем все столбцы ---
-                                row_data = [cell.text.strip() for cell in cols[0:16]]
+                                row_data = [cell.text.strip() for cell in cols[2:16]]
                                 
                                 # Запись в CSV
                                 writer.writerow(row_data)
