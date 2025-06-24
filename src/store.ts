@@ -1,4 +1,4 @@
-import { createStore, createEvent, createEffect, sample } from "effector";
+import { createStore, createEffect, sample } from "effector";
 import Papa from "papaparse";
 import { Blade, BladeData } from "./types";
 
@@ -6,7 +6,7 @@ export const loadCsvFx = createEffect<void, Blade[]>(async () => {
   const response = await fetch("./parsing/all_blades.csv");
   const csvText = await response.text();
 
-  return new Promise((resolve, reject) => {
+  return new Promise((resolve) => {
     Papa.parse(csvText, {
       header: true,
       complete: ({ data }: { data: BladeData[] }) => {
@@ -30,9 +30,6 @@ export const loadCsvFx = createEffect<void, Blade[]>(async () => {
         }));
 
         resolve(convertedData);
-      },
-      error: (error) => {
-        reject(error);
       },
     });
   });
