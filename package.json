@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "description": "Table Tennis Blade Database Viewer",
   "main": "index.js",
+  "homepage": "https://zarabotaet.github.io/ttdb/",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
