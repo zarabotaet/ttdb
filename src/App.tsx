@@ -2,10 +2,11 @@ import React, { useEffect } from "react";
 import { useUnit } from "effector-react";
 import { loadCsvFx } from "./store";
 import { BladesTable } from "./components/BladesTable";
+import { FilterPanel } from "./components/FilterPanel";
 import { LoadingSpinner } from "./components/LoadingSpinner";
 
 export const App: React.FC = () => {
-  const loading = useUnit(loadCsvFx.pending);
+  const [loading] = useUnit([loadCsvFx.pending]);
 
   useEffect(() => {
     loadCsvFx();
@@ -25,7 +26,12 @@ export const App: React.FC = () => {
             <LoadingSpinner />
           </div>
         ) : (
-          <BladesTable />
+          <>
+            <FilterPanel />
+            <div className="overflow-x-auto">
+              <BladesTable />
+            </div>
+          </>
         )}
       </main>
 

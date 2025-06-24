@@ -1,6 +1,6 @@
 import React from "react";
 import { useUnit } from "effector-react";
-import { $blades } from "../store";
+import { $filteredBlades } from "../store";
 import { Blade } from "../types";
 import {
   getMaterialColor,
@@ -19,7 +19,9 @@ const Th: React.FC<{ children: React.ReactNode; className?: string }> = ({
 );
 
 export const BladesTable: React.FC = () => {
-  const blades = useUnit($blades);
+  const blades = useUnit($filteredBlades);
+
+  console.log(blades);
 
   return (
     <table className="min-w-full bg-white border-collapse">
@@ -35,10 +37,7 @@ export const BladesTable: React.FC = () => {
       </thead>
       <tbody>
         {blades.map((blade: Blade) => (
-          <tr
-            key={blade.model + blade.pliesNumber}
-            className="hover:bg-gray-50 transition-colors duration-150"
-          >
+          <tr className="hover:bg-gray-50 transition-colors duration-150">
             <td className="px-4 py-3 text-sm font-medium text-gray-900 max-w-24 break-words border text-center">
               {blade.brand}
             </td>
