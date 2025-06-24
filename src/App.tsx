@@ -1,7 +1,7 @@
 import React, { useEffect } from "react";
 import { useUnit } from "effector-react";
 import { loadCsvFx } from "./store";
-import { BladeTable } from "./components/BladeTable";
+import { BladesTable } from "./components/BladesTable";
 import { LoadingSpinner } from "./components/LoadingSpinner";
 
 export const App: React.FC = () => {
@@ -25,7 +25,7 @@ export const App: React.FC = () => {
             <LoadingSpinner />
           </div>
         ) : (
-          <BladeTable />
+          <BladesTable />
         )}
       </main>
 

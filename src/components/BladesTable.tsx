@@ -1,33 +1,11 @@
 import React from "react";
 import { useUnit } from "effector-react";
 import { $blades } from "../store";
-import { Blade, PlyMaterial } from "../types";
-
-const generateColorFromMaterial = (material: PlyMaterial): string => {
-  // Create a hash from the material string
-  let hash = 0;
-  for (let i = 0; i < material.length; i++) {
-    const char = material.charCodeAt(i);
-    hash = (hash << 5) - hash + char;
-    hash = hash & hash; // Convert to 32-bit integer
-  }
-
-  // Generate wood-like colors (browns, tans, yellows)
-  // Hue range: 20-60 (yellows to browns) with some variation
-  const baseHue = 20 + (Math.abs(hash) % 40); // 20-60 degrees
-  const hue = baseHue + ((Math.abs(hash >> 8) % 20) - 10); // Add some variation
-
-  // Saturation: 30-80% (wood has moderate saturation)
-  const saturation = 30 + (Math.abs(hash >> 16) % 50);
-
-  // Lightness: 15-85% (from very dark to very light wood)
-  const lightness = 15 + (Math.abs(hash >> 24) % 70);
-
-  return `hsl(${Math.max(
-    0,
-    Math.min(360, hue)
-  )}, ${saturation}%, ${lightness}%)`;
-};
+import { Blade } from "../types";
+import {
+  getMaterialColor,
+  getTextColorForBackground,
+} from "../utils/materialColors";
 
 const Th: React.FC<{ children: React.ReactNode; className?: string }> = ({
   children,
@@ -40,7 +18,7 @@ const Th: React.FC<{ children: React.ReactNode; className?: string }> = ({
   </th>
 );
 
-export const BladeTable: React.FC = () => {
+export const BladesTable: React.FC = () => {
   const blades = useUnit($blades);
 
   return (
@@ -58,7 +36,7 @@ export const BladeTable: React.FC = () => {
       <tbody>
         {blades.map((blade: Blade) => (
           <tr
-            key={blade.model}
+            key={blade.model + blade.pliesNumber}
             className="hover:bg-gray-50 transition-colors duration-150"
           >
             <td className="px-4 py-3 text-sm font-medium text-gray-900 max-w-24 break-words border text-center">
@@ -79,14 +57,8 @@ export const BladeTable: React.FC = () => {
             <td className="px-4 py-3 text-sm border text-center">
               <div className="flex flex-col gap-0">
                 {blade.plies.map((ply, index) => {
-                  const backgroundColor = generateColorFromMaterial(ply);
-                  // Extract lightness from HSL to determine text color
-                  const lightnessMatch = backgroundColor.match(/(\d+)%\)$/);
-                  const lightness = lightnessMatch
-                    ? parseInt(lightnessMatch[1])
-                    : 50;
-                  const textColor =
-                    lightness > 50 ? "text-gray-800" : "text-white";
+                  const backgroundColor = getMaterialColor(ply);
+                  const textColor = getTextColorForBackground(backgroundColor);
 
                   return (
                     <div
