@@ -3,9 +3,12 @@ import { useUnit } from "effector-react";
 import {
   $brandFilter,
   $pliesFilter,
+  $pliesNumberFilter,
   setBrandFilter,
   setPliesFilter,
+  setPliesNumberFilter,
   clearFilters,
+  $blades,
 } from "../store";
 import { Brand, PlyMaterial } from "../types";
 
@@ -14,7 +17,18 @@ const allBrands = Object.values(Brand).sort();
 const allPlies = Object.values(PlyMaterial).sort();
 
 export const FilterPanel: React.FC = () => {
-  const [brandFilter, pliesFilter] = useUnit([$brandFilter, $pliesFilter]);
+  const [brandFilter, pliesFilter, pliesNumberFilter, blades] = useUnit([
+    $brandFilter,
+    $pliesFilter,
+    $pliesNumberFilter,
+    $blades,
+  ]);
+
+  // Get unique plies numbers from the actual data
+  const availablePliesNumbers = React.useMemo(() => {
+    const pliesNumbers = blades.map((blade) => blade.pliesNumber);
+    return [...new Set(pliesNumbers)].sort((a, b) => a - b);
+  }, [blades]);
 
   const handleBrandChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const value = event.target.value;
@@ -26,11 +40,19 @@ export const FilterPanel: React.FC = () => {
     setPliesFilter(value);
   };
 
+  const handlePliesNumberChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const value = event.target.value;
+    setPliesNumberFilter(value === "" ? null : parseInt(value, 10));
+  };
+
   const handleClearFilters = () => {
     clearFilters();
   };
 
-  const hasActiveFilters = brandFilter !== null || pliesFilter !== null;
+  const hasActiveFilters =
+    brandFilter !== null || pliesFilter !== null || pliesNumberFilter !== null;
 
   return (
     <div className="bg-white rounded-lg shadow-md p-6 mb-6">
@@ -62,7 +84,7 @@ export const FilterPanel: React.FC = () => {
             htmlFor="plies-filter"
             className="block text-sm font-medium text-gray-700 mb-2"
           >
-            Filter by Number of Plies
+            Filter by Ply Material
           </label>
           <select
             id="plies-filter"
@@ -70,10 +92,32 @@ export const FilterPanel: React.FC = () => {
             onChange={handlePliesChange}
             className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blade-primary focus:border-transparent"
           >
-            <option value="">All Plies</option>
+            <option value="">All Ply Materials</option>
             {allPlies.map((ply) => (
               <option key={ply} value={ply}>
                 {ply}
+              </option>
+            ))}
+          </select>
+        </div>
+
+        <div className="flex-1">
+          <label
+            htmlFor="plies-number-filter"
+            className="block text-sm font-medium text-gray-700 mb-2"
+          >
+            Filter by Number of Plies
+          </label>
+          <select
+            id="plies-number-filter"
+            value={pliesNumberFilter !== null ? pliesNumberFilter : ""}
+            onChange={handlePliesNumberChange}
+            className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blade-primary focus:border-transparent"
+          >
+            <option value="">All Plies Numbers</option>
+            {availablePliesNumbers.map((number) => (
+              <option key={number} value={number}>
+                {number}
               </option>
             ))}
           </select>
@@ -111,6 +155,17 @@ export const FilterPanel: React.FC = () => {
                 Plies: {pliesFilter}
                 <button
                   onClick={() => setPliesFilter(null)}
+                  className="ml-1.5 inline-flex items-center justify-center w-4 h-4 rounded-full hover:bg-white hover:bg-opacity-20"
+                >
+                  ×
+                </button>
+              </span>
+            )}
+            {pliesNumberFilter !== null && (
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blade-tertiary text-white">
+                Plies Number: {pliesNumberFilter}
+                <button
+                  onClick={() => setPliesNumberFilter(null)}
                   className="ml-1.5 inline-flex items-center justify-center w-4 h-4 rounded-full hover:bg-white hover:bg-opacity-20"
                 >
                   ×

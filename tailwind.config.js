@@ -6,6 +6,7 @@ export default {
       colors: {
         "blade-primary": "#2563eb",
         "blade-secondary": "#1e40af",
+        "blade-tertiary": "#1d4ed8",
       },
     },
   },

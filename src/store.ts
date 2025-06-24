@@ -11,6 +11,7 @@ import { Blade, BladeData, Brand, PlyMaterial } from "./types";
 // Filter events and stores
 export const setBrandFilter = createEvent<Brand | null>();
 export const setPliesFilter = createEvent<PlyMaterial | null>();
+export const setPliesNumberFilter = createEvent<number | null>();
 export const clearFilters = createEvent();
 
 export const $brandFilter = createStore<Brand | null>(null)
@@ -19,6 +20,10 @@ export const $brandFilter = createStore<Brand | null>(null)
 
 export const $pliesFilter = createStore<PlyMaterial | null>(null)
   .on(setPliesFilter, (_, plies) => plies)
+  .reset(clearFilters);
+
+export const $pliesNumberFilter = createStore<number | null>(null)
+  .on(setPliesNumberFilter, (_, pliesNumber) => pliesNumber)
   .reset(clearFilters);
 
 export const loadCsvFx = createEffect<void, Blade[]>(async () => {
@@ -63,12 +68,19 @@ export const $filteredBlades = combine(
   $blades,
   $brandFilter,
   $pliesFilter,
-  (blades, brandFilter, pliesFilter) => {
+  $pliesNumberFilter,
+  (blades, brandFilter, pliesFilter, pliesNumberFilter) => {
     return blades.filter((blade) => {
       if (brandFilter && blade.brand !== brandFilter) {
         return false;
       }
       if (pliesFilter && !blade.plies.includes(pliesFilter)) {
+        return false;
+      }
+      if (
+        pliesNumberFilter !== null &&
+        blade.pliesNumber !== pliesNumberFilter
+      ) {
         return false;
       }
       return true;
