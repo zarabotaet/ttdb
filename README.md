@@ -27,17 +27,20 @@ A React-based web application for viewing and exploring table tennis blade speci
 ### Getting Started
 
 1. Clone the repository:
+
    ```bash
    git clone <your-repo-url>
    cd ttdb
    ```
 
 2. Install dependencies:
+
    ```bash
    npm install
    ```
 
 3. Start the development server:
+
    ```bash
    npm run dev
    ```
@@ -109,6 +112,7 @@ ttdb/
 ## Data Format
 
 The application expects blade data in CSV format with the following columns:
+
 - Brand
 - Model
 - Plies Number
