@@ -1,0 +1,29 @@
+{
+  "name": "ttdb-viewer",
+  "version": "1.0.0",
+  "description": "Table Tennis Blade Database Viewer",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "effector": "^23.0.0",
+    "effector-react": "^23.0.0",
+    "papaparse": "^5.4.1"
+  },
+  "devDependencies": {
+    "@types/react": "^18.2.0",
+    "@types/react-dom": "^18.2.0",
+    "@types/papaparse": "^5.3.14",
+    "@vitejs/plugin-react": "^4.0.0",
+    "autoprefixer": "^10.4.14",
+    "postcss": "^8.4.24",
+    "tailwindcss": "^3.3.0",
+    "typescript": "^5.0.0",
+    "vite": "^4.0.0"
+  }
+}
