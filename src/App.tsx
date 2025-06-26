@@ -16,7 +16,7 @@ export const App: React.FC = () => {
     <div className="min-h-screen bg-gray-50 flex flex-col">
       <header className="bg-gradient-to-r from-blade-primary to-blade-secondary text-white shadow-lg">
         <div className="container mx-auto px-4 py-6">
-          <h1 className="text-3xl font-bold">🏓 Table Tennis Blade Database</h1>
+          <h1 className="text-3xl font-bold">🏓 Table Tennis Database</h1>
         </div>
       </header>
 
@@ -37,7 +37,7 @@ export const App: React.FC = () => {
 
       <footer className="bg-gray-800 text-white py-6 mt-auto">
         <div className="container mx-auto px-4 text-center">
-          <p>&copy; 2025 Table Tennis Blade Database Viewer</p>
+          <p>&copy; 2025 Table Tennis Database Viewer</p>
         </div>
       </footer>
     </div>
