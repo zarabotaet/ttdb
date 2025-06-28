@@ -49,7 +49,7 @@ async function parseBrands() {
 }
 
 async function parseBlades(brandsData) {
-  const outputCsvFilename = path.join("stervinou", "all_blades.csv");
+  const outputCsvFilename = path.join("all_blades_stervinou.csv");
   console.log(
     `\n--- Начало парсинга, результаты будут сохранены в ${outputCsvFilename} ---`
   );

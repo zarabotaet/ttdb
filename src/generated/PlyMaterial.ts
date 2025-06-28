@@ -10,6 +10,7 @@ export enum PlyMaterial {
   ARAMID_CARBON = "Aramid Carbon",
   ARATOX = "Aratox",
   ARYLATE = "Arylate",
+  ARYLATE_CARBON = "Arylate Carbon",
   ASH = "Ash",
   AWAN = "Awan",
   AXYLIUM = "Axylium",
