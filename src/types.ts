@@ -5,27 +5,6 @@ import { Brand } from "./generated/Brand";
 export { Brand, PlyMaterial };
 
 /**
- * Raw CSV data structure matching the CSV headers
- * Uses enum types for type safety
- */
-export interface BladeData {
-  Brand: Brand;
-  Model: string;
-  "Nb plies": string;
-  "Weight (g)": string;
-  "Thick. (mm)": string;
-  "Ply 1": PlyMaterial | "";
-  "Ply 2": PlyMaterial | "";
-  "Ply 3": PlyMaterial | "";
-  "Ply 4": PlyMaterial | "";
-  "Ply 5": PlyMaterial | "";
-  "Ply 6": PlyMaterial | "";
-  "Ply 7": PlyMaterial | "";
-  "Ply 8": PlyMaterial | "";
-  "Ply 9": PlyMaterial | "";
-}
-
-/**
  * Processed blade data with proper types
  * Brand and PlyMaterial fields use enum values for type safety
  */

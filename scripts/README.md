@@ -1,8 +1,21 @@
-# Enum Generation Scripts
+# Data Processing Scripts
 
-This directory contains scripts to automatically generate TypeScript enums from the CSV data.
+This directory contains scripts to process CSV data and generate TypeScript enums.
 
 ## Scripts
+
+### csv-to-json.js
+
+Converts the raw CSV data to JSON format for frontend consumption.
+
+**Usage:**
+
+```bash
+npm run csv-to-json
+```
+
+**Input:** `raw_data/all_blades.csv`
+**Output:** `public/all_blades.json`
 
 ### generate-ply-enum.js
 
@@ -28,13 +41,18 @@ npm run generate-brand-enum
 
 **Output:** `src/generated/Brand.ts`
 
-### Generate Both
+### Generate All Data
 
-To generate both enums at once:
+To generate JSON and both enums at once:
 
 ```bash
-npm run generate-enums
+npm run prepare-data
 ```
+
+This will run:
+
+1. `csv-to-json` - Convert CSV to JSON
+2. `generate-enums` - Generate both Brand and PlyMaterial enums
 
 ## Features
 

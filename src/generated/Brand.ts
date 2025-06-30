@@ -47,7 +47,6 @@ export enum Brand {
   SUNFLEX = "Sunflex",
   TSP = "TSP",
   TELAIGAL = "TelaiGAL",
-  TESTBRAND = "TestBrand",
   TIBHAR = "Tibhar",
   ULMO = "Ulmo",
   VICTAS = "Victas",

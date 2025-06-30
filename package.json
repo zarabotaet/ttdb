@@ -5,24 +5,24 @@
   "main": "index.js",
   "homepage": "https://zarabotaet.github.io/ttdb/",
   "scripts": {
-    "dev": "vite",
-    "build": "vite build",
+    "dev": "npm run prepare-data && vite",
+    "build": "npm run prepare-data && vite build",
     "preview": "vite preview",
     "predeploy": "npm run build",
     "deploy": "gh-pages -d dist",
+    "csv-to-json": "node scripts/csv-to-json.js",
     "generate-ply-enum": "node scripts/generate-ply-enum.js",
     "generate-brand-enum": "node scripts/generate-brand-enum.js",
-    "generate-enums": "npm run generate-ply-enum && npm run generate-brand-enum"
+    "generate-enums": "npm run generate-ply-enum && npm run generate-brand-enum",
+    "prepare-data": "npm run csv-to-json && npm run generate-enums"
   },
   "dependencies": {
     "effector": "^23.0.0",
     "effector-react": "^23.0.0",
-    "papaparse": "^5.4.1",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"
   },
   "devDependencies": {
-    "@types/papaparse": "^5.3.14",
     "@types/react": "^18.2.0",
     "@types/react-dom": "^18.2.0",
     "@vitejs/plugin-react": "^4.0.0",

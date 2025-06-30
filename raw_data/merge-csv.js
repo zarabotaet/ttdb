@@ -155,20 +155,6 @@ function mergeCSVFiles() {
   console.log(`🔄 Перезаписано: ${overriddenCount}`);
   console.log(`💾 Файл сохранен: ${outputFile}`);
 
-  // Копируем результат в папку public/parsing для использования приложением
-  const publicOutputFile = path.join(
-    __dirname,
-    "../public/parsing/all_blades.csv"
-  );
-  const publicDir = path.dirname(publicOutputFile);
-
-  if (!fs.existsSync(publicDir)) {
-    fs.mkdirSync(publicDir, { recursive: true });
-  }
-
-  fs.copyFileSync(outputFile, publicOutputFile);
-  console.log(`📁 Скопировано в: ${publicOutputFile}`);
-
   return outputFile;
 }
 

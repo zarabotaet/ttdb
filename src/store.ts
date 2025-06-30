@@ -5,8 +5,7 @@ import {
   createEvent,
   combine,
 } from "effector";
-import Papa from "papaparse";
-import { Blade, BladeData, Brand, PlyMaterial } from "./types";
+import { Blade, Brand, PlyMaterial } from "./types";
 
 // Filter events and stores
 export const setBrandFilter = createEvent<Brand | null>();
@@ -26,39 +25,10 @@ export const $pliesNumberFilter = createStore<number | null>(null)
   .on(setPliesNumberFilter, (_, pliesNumber) => pliesNumber)
   .reset(clearFilters);
 
-export const loadCsvFx = createEffect<void, Blade[]>(async () => {
-  const response = await fetch("./parsing/all_blades.csv");
-  const csvText = await response.text();
-
-  return new Promise((resolve) => {
-    Papa.parse(csvText, {
-      header: true,
-      complete: ({ data }: { data: BladeData[] }) => {
-        const convertedData = data
-          .filter((item: BladeData) => item.Brand && item.Model) // Filter out empty rows
-          .map((item: BladeData) => ({
-            brand: item.Brand,
-            model: item.Model,
-            pliesNumber: parseInt(item["Nb plies"], 10),
-            weight: parseFloat(item["Weight (g)"]) || 0,
-            thick: parseFloat(item["Thick. (mm)"]) || 0,
-            plies: [
-              item["Ply 1"],
-              item["Ply 2"],
-              item["Ply 3"],
-              item["Ply 4"],
-              item["Ply 5"],
-              item["Ply 6"],
-              item["Ply 7"],
-              item["Ply 8"],
-              item["Ply 9"],
-            ].filter((ply): ply is PlyMaterial => Boolean(ply)),
-          }));
-
-        resolve(convertedData);
-      },
-    });
-  });
+export const loadJsonFx = createEffect<void, Blade[]>(async () => {
+  const response = await fetch("./all_blades.json");
+  const data: Blade[] = await response.json();
+  return data;
 });
 
 export const $blades = createStore<Blade[]>([]);
@@ -89,6 +59,6 @@ export const $filteredBlades = combine(
 );
 
 sample({
-  clock: loadCsvFx.doneData,
+  clock: loadJsonFx.doneData,
   target: $blades,
 });

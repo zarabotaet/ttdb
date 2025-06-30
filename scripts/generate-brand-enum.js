@@ -57,7 +57,7 @@ function generateEnum(uniqueBrands) {
  */
 async function main() {
   try {
-    const csvPath = path.join(__dirname, "../public/parsing/all_blades.csv");
+    const csvPath = path.join(__dirname, "../raw_data/all_blades.csv");
     const outputPath = path.join(__dirname, "../src/generated/Brand.ts");
 
     console.log("Reading CSV file:", csvPath);
