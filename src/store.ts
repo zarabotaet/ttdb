@@ -1,28 +1,44 @@
 import {
   createStore,
   createEffect,
-  sample,
   createEvent,
   combine,
+  restore,
 } from "effector";
 import { Blade, Brand, PlyMaterial } from "./types";
 
-// Filter events and stores
+export type LayerFilterCondition = {
+  layerIndex: number;
+  material: PlyMaterial;
+  shouldHave: boolean;
+};
+
 export const setBrandFilter = createEvent<Brand | null>();
 export const setPliesFilter = createEvent<PlyMaterial | null>();
 export const setPliesNumberFilter = createEvent<number | null>();
+export const setLayerFilter = createEvent<LayerFilterCondition[]>();
+export const updateLayerFilterCondition = createEvent<LayerFilterCondition>();
+export const removeLayerFilterCondition = createEvent<{ layerIndex: number }>();
 export const clearFilters = createEvent();
 
-export const $brandFilter = createStore<Brand | null>(null)
-  .on(setBrandFilter, (_, brand) => brand)
-  .reset(clearFilters);
+export const $brandFilter = restore(setBrandFilter, null).reset(clearFilters);
 
-export const $pliesFilter = createStore<PlyMaterial | null>(null)
-  .on(setPliesFilter, (_, plies) => plies)
-  .reset(clearFilters);
+export const $pliesFilter = restore(setPliesFilter, null).reset(clearFilters);
 
-export const $pliesNumberFilter = createStore<number | null>(null)
-  .on(setPliesNumberFilter, (_, pliesNumber) => pliesNumber)
+export const $pliesNumberFilter = restore(setPliesNumberFilter, null).reset(
+  clearFilters
+);
+
+export const $layerFilter = createStore<LayerFilterCondition[]>([])
+  .on(setLayerFilter, (_, conditions) => conditions)
+  .on(updateLayerFilterCondition, (state, condition) => {
+    // Remove any existing condition for this layer and add the new one
+    const filtered = state.filter((c) => c.layerIndex !== condition.layerIndex);
+    return [...filtered, condition];
+  })
+  .on(removeLayerFilterCondition, (state, { layerIndex }) =>
+    state.filter((c) => c.layerIndex !== layerIndex)
+  )
   .reset(clearFilters);
 
 export const loadJsonFx = createEffect<void, Blade[]>(async () => {
@@ -31,15 +47,15 @@ export const loadJsonFx = createEffect<void, Blade[]>(async () => {
   return data;
 });
 
-export const $blades = createStore<Blade[]>([]);
+export const $blades = restore<Blade[]>(loadJsonFx, []);
 
-// Filtered blades store
 export const $filteredBlades = combine(
   $blades,
   $brandFilter,
   $pliesFilter,
   $pliesNumberFilter,
-  (blades, brandFilter, pliesFilter, pliesNumberFilter) => {
+  $layerFilter,
+  (blades, brandFilter, pliesFilter, pliesNumberFilter, layerFilter) => {
     return blades.filter((blade) => {
       if (brandFilter && blade.brand !== brandFilter) {
         return false;
@@ -53,12 +69,91 @@ export const $filteredBlades = combine(
       ) {
         return false;
       }
+
+      // Layer filter logic
+      if (layerFilter.length > 0) {
+        for (const condition of layerFilter) {
+          const layerMaterial = blade.plies[condition.layerIndex];
+          if (condition.shouldHave) {
+            // Must have this material at this layer
+            if (layerMaterial !== condition.material) {
+              return false;
+            }
+          } else {
+            // Must NOT have this material at this layer
+            if (layerMaterial === condition.material) {
+              return false;
+            }
+          }
+        }
+      }
+
       return true;
     });
   }
 );
 
-sample({
-  clock: loadJsonFx.doneData,
-  target: $blades,
-});
+// Active filters store
+export const $activeFilters = combine(
+  $brandFilter,
+  $pliesFilter,
+  $pliesNumberFilter,
+  $layerFilter,
+  (brandFilter, pliesFilter, pliesNumberFilter, layerFilter) => {
+    const filters = [];
+
+    if (brandFilter) {
+      filters.push({
+        key: "brand",
+        label: `Brand: ${brandFilter}`,
+        onRemove: () => setBrandFilter(null),
+        bgColor: "bg-blade-primary",
+      });
+    }
+
+    if (pliesFilter) {
+      filters.push({
+        key: "plies",
+        label: `Plies: ${pliesFilter}`,
+        onRemove: () => setPliesFilter(null),
+        bgColor: "bg-blade-secondary",
+      });
+    }
+
+    if (pliesNumberFilter !== null) {
+      filters.push({
+        key: "pliesNumber",
+        label: `Plies Number: ${pliesNumberFilter}`,
+        onRemove: () => setPliesNumberFilter(null),
+        bgColor: "bg-blade-tertiary",
+      });
+    }
+
+    layerFilter.forEach((condition, index) => {
+      filters.push({
+        key: `layer-${condition.layerIndex}-${index}`,
+        label: `Layer ${condition.layerIndex + 1}: ${
+          condition.shouldHave ? "✓" : "✗"
+        } ${condition.material}`,
+        onRemove: () =>
+          removeLayerFilterCondition({ layerIndex: condition.layerIndex }),
+        bgColor: "bg-purple-500",
+      });
+    });
+
+    return filters;
+  }
+);
+
+// Has active filters store
+export const $hasActiveFilters = combine(
+  $brandFilter,
+  $pliesFilter,
+  $pliesNumberFilter,
+  $layerFilter,
+  (brandFilter, pliesFilter, pliesNumberFilter, layerFilter) =>
+    brandFilter !== null ||
+    pliesFilter !== null ||
+    pliesNumberFilter !== null ||
+    layerFilter.length > 0
+);

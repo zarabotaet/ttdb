@@ -1,9 +1,9 @@
 import React, { useEffect } from "react";
 import { useUnit } from "effector-react";
 import { loadJsonFx } from "./store";
-import { BladesTable } from "./components/BladesTable";
-import { FilterPanel } from "./components/FilterPanel";
+import { FilterPanel } from "./components/filters/FilterPanel";
 import { LoadingSpinner } from "./components/LoadingSpinner";
+import { BladesTable } from "./components/table/BladesTable";
 
 export const App: React.FC = () => {
   const [loading] = useUnit([loadJsonFx.pending]);

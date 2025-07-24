@@ -1,0 +1,8 @@
+- All new code should be written in TypeScript.
+- Follow ESLint rules and Prettier formatting.
+- Never use Barrel exports! Always use explicit file names.
+- All logic should be encapsulated in effector way units.
+- Try to avoid using React state or refs for logic that can be handled by effector.
+- Try always to not use props drilling and use effector units instead.
+- Use Tailwind CSS for styling.
+- Do not add comments to the code unless absolutely necessary.
