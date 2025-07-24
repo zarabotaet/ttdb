@@ -4,7 +4,6 @@ import {
   createEvent,
   combine,
   restore,
-  sample,
 } from "effector";
 import { Blade, Brand, PlyMaterial } from "./types";
 
@@ -23,31 +22,23 @@ export const removeLayerFilterCondition = createEvent<{ layerIndex: number }>();
 export const clearFilters = createEvent();
 
 export const $brandFilter = restore(setBrandFilter, null).reset(clearFilters);
-
-export const $pliesFilter = restore(setPliesFilter, null).reset(clearFilters);
-
+export const $pliesFilter = restore(setPliesFilter, null).reset(
+  clearFilters,
+  setLayerFilter
+);
 export const $pliesNumberFilter = restore(setPliesNumberFilter, null).reset(
   clearFilters
 );
-
 export const $layerFilter = createStore<LayerFilterCondition[]>([])
   .on(setLayerFilter, (_, conditions) => conditions)
   .on(updateLayerFilterCondition, (state, condition) => {
-    // Remove any existing condition for this layer and add the new one
     const filtered = state.filter((c) => c.layerIndex !== condition.layerIndex);
     return [...filtered, condition];
   })
   .on(removeLayerFilterCondition, (state, { layerIndex }) =>
     state.filter((c) => c.layerIndex !== layerIndex)
   )
-  .reset(clearFilters);
-
-// Automatically clear plies filter when plies number filter is set to a non-null value
-sample({
-  clock: setPliesNumberFilter,
-  filter: (pliesNumber) => pliesNumber !== null,
-  target: setPliesFilter.prepend(() => null),
-});
+  .reset(clearFilters, setPliesFilter, setPliesNumberFilter);
 
 export const loadJsonFx = createEffect<void, Blade[]>(async () => {
   const response = await fetch("./all_blades.json");
@@ -56,6 +47,10 @@ export const loadJsonFx = createEffect<void, Blade[]>(async () => {
 });
 
 export const $blades = restore<Blade[]>(loadJsonFx, []);
+export const $availablePliesNumbers = $blades.map((blades) => {
+  const pliesNumbers = blades.map((blade) => blade.pliesNumber);
+  return [...new Set(pliesNumbers)].sort((a, b) => a - b);
+});
 
 export const $filteredBlades = combine(
   $blades,
@@ -78,17 +73,14 @@ export const $filteredBlades = combine(
         return false;
       }
 
-      // Layer filter logic
       if (layerFilter.length > 0) {
         for (const condition of layerFilter) {
           const layerMaterial = blade.plies[condition.layerIndex];
           if (condition.shouldHave) {
-            // Must have this material at this layer
             if (layerMaterial !== condition.material) {
               return false;
             }
           } else {
-            // Must NOT have this material at this layer
             if (layerMaterial === condition.material) {
               return false;
             }
@@ -101,7 +93,6 @@ export const $filteredBlades = combine(
   }
 );
 
-// Active filters store
 export const $activeFilters = combine(
   $brandFilter,
   $pliesFilter,
@@ -153,15 +144,6 @@ export const $activeFilters = combine(
   }
 );
 
-// Has active filters store
-export const $hasActiveFilters = combine(
-  $brandFilter,
-  $pliesFilter,
-  $pliesNumberFilter,
-  $layerFilter,
-  (brandFilter, pliesFilter, pliesNumberFilter, layerFilter) =>
-    brandFilter !== null ||
-    pliesFilter !== null ||
-    pliesNumberFilter !== null ||
-    layerFilter.length > 0
+export const $hasActiveFilters = $activeFilters.map(
+  (filters) => filters.length > 0
 );

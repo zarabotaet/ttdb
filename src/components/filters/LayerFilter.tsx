@@ -6,7 +6,6 @@ import {
   updateLayerFilterCondition,
   removeLayerFilterCondition,
   LayerFilterCondition,
-  clearFilters,
 } from "../../store";
 import { PlyMaterial } from "../../types";
 import {
@@ -16,24 +15,16 @@ import {
 
 const allPlies = Object.values(PlyMaterial).sort();
 
-interface LayerRowProps {
+type LayerRowProps = {
   layerIndex: number;
   condition?: LayerFilterCondition;
-  onRemove: () => void;
-}
+};
 
-const LayerRow: React.FC<LayerRowProps> = ({
-  layerIndex,
-  condition,
-  onRemove,
-}) => {
-  const [selectedMaterial, setSelectedMaterial] = useState<PlyMaterial | "">(
-    condition?.material || ""
-  );
+const LayerRow: React.FC<LayerRowProps> = ({ layerIndex, condition }) => {
+  const selectedMaterial = condition?.material || "";
   const [shouldHave, setShouldHave] = useState(condition?.shouldHave ?? true);
 
   const handleMaterialChange = (material: PlyMaterial | "") => {
-    setSelectedMaterial(material);
     if (material) {
       updateLayerFilterCondition({
         layerIndex,
@@ -41,8 +32,7 @@ const LayerRow: React.FC<LayerRowProps> = ({
         shouldHave,
       });
     } else {
-      // If no material selected, remove condition
-      onRemove();
+      removeLayerFilterCondition({ layerIndex });
     }
   };
 
@@ -59,32 +49,52 @@ const LayerRow: React.FC<LayerRowProps> = ({
 
   const backgroundColor = selectedMaterial
     ? getMaterialColor(selectedMaterial)
-    : "#f3f4f6";
+    : "transparent";
   const textColor = selectedMaterial
     ? getTextColorForBackground(backgroundColor)
     : "text-gray-700";
 
   return (
-    <div className="flex items-center gap-2 p-2 border-b border-gray-200">
-      <div className="w-8 text-xs font-medium text-gray-600 text-center">
+    <div className="flex items-center border-b border-gray-200 last:border-b-0">
+      <div className="w-8 text-xs font-medium text-gray-600 text-center flex-shrink-0">
         {layerIndex + 1}
       </div>
 
-      <div className="flex-1">
+      <div className="w-12 flex items-center justify-center flex-shrink-0 border-l border-gray-300">
+        <button
+          onClick={() => handleConditionChange(!shouldHave)}
+          disabled={!selectedMaterial}
+          className={`px-2 py-1 text-xs rounded ${
+            !selectedMaterial
+              ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+              : !shouldHave
+              ? "bg-red-500 text-white"
+              : "bg-gray-200 text-gray-600 hover:bg-gray-300"
+          }`}
+          title={
+            !selectedMaterial
+              ? "Select material first"
+              : shouldHave
+              ? "Click to negate condition"
+              : "Click to make positive condition"
+          }
+        >
+          NOT
+        </button>
+      </div>
+
+      <div
+        className="flex-1 min-w-0 relative border-l border-r border-gray-300"
+        style={{
+          backgroundColor,
+        }}
+      >
         <select
           value={selectedMaterial}
           onChange={(e) =>
             handleMaterialChange(e.target.value as PlyMaterial | "")
           }
-          className="w-full px-2 py-1 text-xs border border-gray-300 rounded focus:outline-none focus:ring-1 focus:ring-blade-primary"
-          style={{
-            backgroundColor: selectedMaterial ? backgroundColor : undefined,
-            color: selectedMaterial
-              ? textColor.includes("white")
-                ? "white"
-                : "black"
-              : undefined,
-          }}
+          className={`w-full px-2 py-1 pr-2 text-xs bg-transparent border-none focus:outline-none appearance-none ${textColor}`}
         >
           <option value="">Select material</option>
           {allPlies.map((ply) => (
@@ -93,44 +103,39 @@ const LayerRow: React.FC<LayerRowProps> = ({
             </option>
           ))}
         </select>
+        <div className="absolute inset-y-0 right-1 flex items-center pointer-events-none">
+          <svg
+            className={`w-3 h-3 text-gray-400 ${textColor}`}
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              strokeWidth={2}
+              d="M19 9l-7 7-7-7"
+            />
+          </svg>
+        </div>
       </div>
 
-      {selectedMaterial && (
-        <>
-          <div className="flex gap-1">
-            <button
-              onClick={() => handleConditionChange(true)}
-              className={`px-2 py-1 text-xs rounded ${
-                shouldHave
-                  ? "bg-green-500 text-white"
-                  : "bg-gray-200 text-gray-600 hover:bg-gray-300"
-              }`}
-              title="Must have this material"
-            >
-              ✓
-            </button>
-            <button
-              onClick={() => handleConditionChange(false)}
-              className={`px-2 py-1 text-xs rounded ${
-                !shouldHave
-                  ? "bg-red-500 text-white"
-                  : "bg-gray-200 text-gray-600 hover:bg-gray-300"
-              }`}
-              title="Must NOT have this material"
-            >
-              ✗
-            </button>
-          </div>
-
-          <button
-            onClick={onRemove}
-            className="w-6 h-6 text-red-500 hover:text-red-700 hover:bg-red-50 rounded flex items-center justify-center"
-            title="Remove condition"
-          >
-            ×
-          </button>
-        </>
-      )}
+      <div className="flex items-center gap-1 flex-shrink-0">
+        <button
+          onClick={() => removeLayerFilterCondition({ layerIndex })}
+          disabled={!selectedMaterial}
+          className={`w-6 h-6 rounded flex items-center justify-center text-sm ${
+            !selectedMaterial
+              ? "text-gray-300 cursor-not-allowed"
+              : "text-red-500 hover:text-red-700 hover:bg-red-50"
+          }`}
+          title={
+            !selectedMaterial ? "Select material first" : "Remove condition"
+          }
+        >
+          ×
+        </button>
+      </div>
     </div>
   );
 };
@@ -143,7 +148,7 @@ export const LayerFilter: React.FC = () => {
 
   if (!pliesNumber) {
     return (
-      <div className="bg-gray-50 rounded-lg p-4 text-center">
+      <div className="bg-gray-50 rounded-lg p-4 text-center mt-6">
         <div className="text-sm text-gray-500 mb-2">Layer Filter</div>
         <div className="text-xs text-gray-400">
           Choose number of plies first to enable layer filtering
@@ -153,40 +158,22 @@ export const LayerFilter: React.FC = () => {
   }
 
   const layers = Array.from({ length: pliesNumber }, (_, index) => index);
-  const hasConditions = layerConditions.length > 0;
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 overflow-hidden">
-      <div className="px-4 py-3 bg-gray-50 border-b border-gray-200 flex items-center justify-between">
-        <div className="text-sm font-medium text-gray-700">Layer Filter</div>
-        {hasConditions && (
-          <button
-            onClick={() => clearFilters()}
-            className="text-xs text-red-600 hover:text-red-800"
-          >
-            Clear all
-          </button>
-        )}
-      </div>
+    <div className="bg-white rounded-lg border border-gray-200 mt-7">
+      {layers.map((layerIndex) => {
+        const existingCondition = layerConditions.find(
+          (c) => c.layerIndex === layerIndex
+        );
 
-      <div>
-        {layers.map((layerIndex) => {
-          const existingCondition = layerConditions.find(
-            (c) => c.layerIndex === layerIndex
-          );
-
-          return (
-            <LayerRow
-              key={layerIndex}
-              layerIndex={layerIndex}
-              condition={existingCondition}
-              onRemove={() => {
-                removeLayerFilterCondition({ layerIndex });
-              }}
-            />
-          );
-        })}
-      </div>
+        return (
+          <LayerRow
+            key={layerIndex}
+            layerIndex={layerIndex}
+            condition={existingCondition}
+          />
+        );
+      })}
     </div>
   );
 };

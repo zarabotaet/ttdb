@@ -6,3 +6,4 @@
 - Try always to not use props drilling and use effector units instead.
 - Use Tailwind CSS for styling.
 - Do not add comments to the code unless absolutely necessary.
+- Do not use interfaces for component props, use type aliases instead.
