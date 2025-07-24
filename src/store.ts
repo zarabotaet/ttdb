@@ -4,6 +4,7 @@ import {
   createEvent,
   combine,
   restore,
+  sample,
 } from "effector";
 import { Blade, Brand, PlyMaterial } from "./types";
 
@@ -40,6 +41,13 @@ export const $layerFilter = createStore<LayerFilterCondition[]>([])
     state.filter((c) => c.layerIndex !== layerIndex)
   )
   .reset(clearFilters);
+
+// Automatically clear plies filter when plies number filter is set to a non-null value
+sample({
+  clock: setPliesNumberFilter,
+  filter: (pliesNumber) => pliesNumber !== null,
+  target: setPliesFilter.prepend(() => null),
+});
 
 export const loadJsonFx = createEffect<void, Blade[]>(async () => {
   const response = await fetch("./all_blades.json");

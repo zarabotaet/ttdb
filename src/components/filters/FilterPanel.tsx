@@ -13,7 +13,6 @@ import { Brand, PlyMaterial } from "../../types";
 import { LayerFilter } from "./LayerFilter";
 import { ActiveFilterList } from "./ActiveFilterList";
 
-// Get all brands directly from the enum
 const allBrands = Object.values(Brand).sort();
 const allPlies = Object.values(PlyMaterial).sort();
 
@@ -25,7 +24,6 @@ export const FilterPanel: React.FC = () => {
     $blades,
   ]);
 
-  // Get unique plies numbers from the actual data
   const availablePliesNumbers = React.useMemo(() => {
     const pliesNumbers = blades.map((blade) => blade.pliesNumber);
     return [...new Set(pliesNumbers)].sort((a, b) => a - b);
@@ -48,11 +46,6 @@ export const FilterPanel: React.FC = () => {
     const newPliesNumber = value === "" ? null : parseInt(value, 10);
 
     setPliesNumberFilter(newPliesNumber);
-
-    // Если выбрано количество слоев, очищаем фильтр по материалу, так как теперь используется сложный фильтр
-    if (newPliesNumber !== null && pliesFilter !== null) {
-      setPliesFilter(null);
-    }
   };
 
   return (

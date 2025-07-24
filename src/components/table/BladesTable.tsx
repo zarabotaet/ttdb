@@ -24,9 +24,9 @@ export const BladesTable: React.FC = () => {
         </tr>
       </thead>
       <tbody>
-        {blades.map((blade: Blade) => (
+        {blades.map((blade: Blade, index: number) => (
           <tr
-            key={blade.model}
+            key={index}
             className="hover:bg-gray-50 transition-colors duration-150"
           >
             <Td className="font-medium text-gray-900 max-w-24 break-words">
@@ -34,8 +34,8 @@ export const BladesTable: React.FC = () => {
             </Td>
             <Td className="max-w-24 break-words">{blade.model}</Td>
             <Td>{blade.pliesNumber}</Td>
-            <Td>{blade.weight}</Td>
-            <Td>{blade.thick === 0 ? "-" : blade.thick}</Td>
+            <Td>{blade.weight === 0 ? "?" : blade.weight}</Td>
+            <Td>{blade.thick === 0 ? "?" : blade.thick}</Td>
             <Td>
               <LayersDisplay plies={blade.plies} />
             </Td>
