@@ -3,6 +3,7 @@ import { useUnit } from "effector-react";
 import {
   $pliesNumberFilter,
   $layerFilter,
+  $maximumPliesNumber,
   updateLayerFilterCondition,
   removeLayerFilterCondition,
   LayerFilterCondition,
@@ -141,23 +142,16 @@ const LayerRow: React.FC<LayerRowProps> = ({ layerIndex, condition }) => {
 };
 
 export const LayerFilter: React.FC = () => {
-  const [pliesNumber, layerConditions] = useUnit([
+  const [pliesNumber, layerConditions, maximumPliesNumber] = useUnit([
     $pliesNumberFilter,
     $layerFilter,
+    $maximumPliesNumber,
   ]);
 
-  if (!pliesNumber) {
-    return (
-      <div className="bg-gray-50 rounded-lg p-4 text-center mt-6">
-        <div className="text-sm text-gray-500 mb-2">Layer Filter</div>
-        <div className="text-xs text-gray-400">
-          Choose number of plies first to enable layer filtering
-        </div>
-      </div>
-    );
-  }
-
-  const layers = Array.from({ length: pliesNumber }, (_, index) => index);
+  const layers = Array.from(
+    { length: pliesNumber || maximumPliesNumber },
+    (_, index) => index
+  );
 
   return (
     <div className="bg-white rounded-lg border border-gray-200 mt-7">

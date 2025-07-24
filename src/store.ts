@@ -51,6 +51,9 @@ export const $availablePliesNumbers = $blades.map((blades) => {
   const pliesNumbers = blades.map((blade) => blade.pliesNumber);
   return [...new Set(pliesNumbers)].sort((a, b) => a - b);
 });
+export const $maximumPliesNumber = $availablePliesNumbers.map((numbers) =>
+  Math.max(...numbers, 0)
+);
 
 export const $filteredBlades = combine(
   $blades,
