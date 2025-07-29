@@ -10,22 +10,19 @@ import {
   setPliesNumberFilter,
 } from "../../store";
 import { Brand, PlyMaterial } from "../../types";
+import { BrandUtils, PlyMaterialUtils } from "../../utils/enumUtils";
 import { LayerFilter } from "./LayerFilter";
 import { ActiveFilterList } from "./ActiveFilterList";
 import { Select } from "./Select";
 
-const brandOptions = Object.values(Brand)
-  .sort()
-  .map((brand) => ({
-    value: brand,
-    label: brand,
-  }));
-const pliesOptions = Object.values(PlyMaterial)
-  .sort()
-  .map((ply) => ({
-    value: ply,
-    label: ply,
-  }));
+const brandOptions = BrandUtils.getAllBrands().map((brand) => ({
+  value: brand,
+  label: brand,
+}));
+const pliesOptions = PlyMaterialUtils.getAllMaterials().map((ply) => ({
+  value: ply,
+  label: ply,
+}));
 
 export const FilterPanel: React.FC = () => {
   const [brandFilter, pliesFilter, pliesNumberFilter, availablePliesNumbers] =

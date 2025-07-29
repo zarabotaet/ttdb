@@ -154,20 +154,25 @@ export const LayerFilter: React.FC = () => {
   );
 
   return (
-    <div className="bg-white rounded-lg border border-gray-200 mt-7">
-      {layers.map((layerIndex) => {
-        const existingCondition = layerConditions.find(
-          (c) => c.layerIndex === layerIndex
-        );
+    <div className="space-y-2">
+      <label className="block text-sm font-medium text-gray-700">
+        Select Materials by Plies
+      </label>
+      <div className="bg-white rounded-lg border border-gray-200">
+        {layers.map((layerIndex) => {
+          const existingCondition = layerConditions.find(
+            (c) => c.layerIndex === layerIndex
+          );
 
-        return (
-          <LayerRow
-            key={layerIndex}
-            layerIndex={layerIndex}
-            condition={existingCondition}
-          />
-        );
-      })}
+          return (
+            <LayerRow
+              key={layerIndex}
+              layerIndex={layerIndex}
+              condition={existingCondition}
+            />
+          );
+        })}
+      </div>
     </div>
   );
 };

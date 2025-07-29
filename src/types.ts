@@ -22,18 +22,3 @@ export interface Blade {
  */
 export type BrandFilter = Brand | null;
 export type PliesFilter = PlyMaterial | null;
-
-/**
- * Utility functions for enum operations
- */
-export const BrandUtils = {
-  getAllBrands: (): Brand[] => Object.values(Brand),
-  isBrand: (value: string): value is Brand =>
-    Object.values(Brand).includes(value as Brand),
-};
-
-export const PlyMaterialUtils = {
-  getAllMaterials: (): PlyMaterial[] => Object.values(PlyMaterial),
-  isPlyMaterial: (value: string): value is PlyMaterial =>
-    Object.values(PlyMaterial).includes(value as PlyMaterial),
-};
