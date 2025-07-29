@@ -31,7 +31,7 @@ export const ActiveFilterList: React.FC = () => {
         <div className="flex-shrink-0 ml-auto">
           <button
             onClick={() => clearFilters()}
-            className="px-4 py-2 bg-gray-500 hover:bg-gray-600 text-white rounded-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-gray-500 focus:ring-offset-2 text-sm"
+            className="px-4 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-md transition-colors duration-150 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 text-sm"
           >
             Clear Filters
           </button>

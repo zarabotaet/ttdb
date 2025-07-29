@@ -38,7 +38,7 @@ export const $layerFilter = createStore<LayerFilterCondition[]>([])
   .on(removeLayerFilterCondition, (state, { layerIndex }) =>
     state.filter((c) => c.layerIndex !== layerIndex)
   )
-  .reset(clearFilters, setPliesFilter, setPliesNumberFilter);
+  .reset(clearFilters, setPliesFilter);
 
 export const loadJsonFx = createEffect<void, Blade[]>(async () => {
   const response = await fetch("./all_blades.json");
@@ -62,6 +62,14 @@ export const $filteredBlades = combine(
   $pliesNumberFilter,
   $layerFilter,
   (blades, brandFilter, pliesFilter, pliesNumberFilter, layerFilter) => {
+    if (
+      brandFilter === null &&
+      pliesFilter === null &&
+      pliesNumberFilter === null &&
+      layerFilter.length === 0
+    ) {
+      return blades;
+    }
     return blades.filter((blade) => {
       if (brandFilter && blade.brand !== brandFilter) {
         return false;
@@ -96,13 +104,29 @@ export const $filteredBlades = combine(
   }
 );
 
+export type ActiveFilter = {
+  key: string;
+  label: string;
+  onRemove: () => void;
+  bgColor?: string;
+};
+
 export const $activeFilters = combine(
   $brandFilter,
   $pliesFilter,
   $pliesNumberFilter,
   $layerFilter,
   (brandFilter, pliesFilter, pliesNumberFilter, layerFilter) => {
-    const filters = [];
+    const filters: ActiveFilter[] = [];
+
+    if (
+      !brandFilter &&
+      !pliesFilter &&
+      pliesNumberFilter === null &&
+      layerFilter.length === 0
+    ) {
+      return filters;
+    }
 
     if (brandFilter) {
       filters.push({

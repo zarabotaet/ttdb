@@ -9,9 +9,14 @@ import { Blade, Brand } from "../../types";
 import { Th } from "./Th";
 import { Td } from "./Td";
 import { LayersDisplay } from "./LayersDisplay";
+import { EmptyState } from "./EmptyState";
 
 export const BladesTable: React.FC = () => {
   const blades = useUnit($filteredBlades);
+
+  if (blades.length === 0) {
+    return <EmptyState />;
+  }
 
   return (
     <table className="min-w-full bg-white border-collapse">
