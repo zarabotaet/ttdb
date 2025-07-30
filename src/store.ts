@@ -4,7 +4,9 @@ import {
   createEvent,
   combine,
   restore,
+  merge,
 } from "effector";
+import { once } from "patronum";
 import {
   Blade,
   Brand,
@@ -26,20 +28,21 @@ export const $pliesFilter = restore(setPliesFilter, null).reset(clearFilters);
 export const $pliesNumberFilter = restore(setPliesNumberFilter, null).reset(
   clearFilters
 );
-export const $collectionFilter = restore(
-  setCollectionFilter,
-  Collection.Popular
-).on(
-  [
-    clearFilters,
+
+const switchToAllOnce = once(
+  merge([
     setBrandFilter,
     setPliesFilter,
     setPliesNumberFilter,
     updateLayerFilterCondition,
     removeLayerFilterCondition,
-  ],
-  () => Collection.All
+  ])
 );
+
+export const $collectionFilter = restore(
+  setCollectionFilter,
+  Collection.Popular
+).on([switchToAllOnce, clearFilters], () => Collection.All);
 
 export const $layerFilter = createStore<LayerFilterCondition[]>([])
   .on(updateLayerFilterCondition, (state, condition) => {
@@ -73,11 +76,23 @@ export const $popularBlades = $blades.map((blades) =>
 
 export const $filteredBlades = combine(
   $blades,
+  $popularBlades,
   $brandFilter,
   $pliesFilter,
   $pliesNumberFilter,
   $layerFilter,
-  (blades, brandFilter, pliesFilter, pliesNumberFilter, layerFilter) => {
+  $collectionFilter,
+  (
+    allBlades,
+    popularBlades,
+    brandFilter,
+    pliesFilter,
+    pliesNumberFilter,
+    layerFilter,
+    collectionFilter
+  ) => {
+    const blades =
+      collectionFilter === Collection.Popular ? popularBlades : allBlades;
     if (
       brandFilter === null &&
       pliesFilter === null &&

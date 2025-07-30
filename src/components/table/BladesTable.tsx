@@ -4,24 +4,15 @@ import {
   $filteredBlades,
   setPliesNumberFilter,
   setBrandFilter,
-  $popularBlades,
-  $collectionFilter,
 } from "../../store";
-import { Blade, Brand, Collection } from "../../types";
+import { Blade, Brand } from "../../types";
 import { Th } from "./Th";
 import { Td } from "./Td";
 import { LayersDisplay } from "./LayersDisplay";
 import { EmptyState } from "./EmptyState";
 
 export const BladesTable: React.FC = () => {
-  const [filteredBlades, popularBlades, collectionFilter] = useUnit([
-    $filteredBlades,
-    $popularBlades,
-    $collectionFilter,
-  ]);
-
-  const blades =
-    collectionFilter === Collection.Popular ? popularBlades : filteredBlades;
+  const [blades] = useUnit([$filteredBlades]);
 
   if (blades.length === 0) {
     return <EmptyState />;
