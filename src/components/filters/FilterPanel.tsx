@@ -8,8 +8,10 @@ import {
   setBrandFilter,
   setPliesFilter,
   setPliesNumberFilter,
+  $collectionFilter,
+  setCollectionFilter,
 } from "../../store";
-import { Brand, PlyMaterial } from "../../types";
+import { Brand, Collection, PlyMaterial } from "../../types";
 import { BrandUtils, PlyMaterialUtils } from "../../utils/enumUtils";
 import { LayerFilter } from "./LayerFilter";
 import { ActiveFilterList } from "./ActiveFilterList";
@@ -25,18 +27,36 @@ const pliesOptions = PlyMaterialUtils.getAllMaterials().map((ply) => ({
 }));
 
 export const FilterPanel: React.FC = () => {
-  const [brandFilter, pliesFilter, pliesNumberFilter, availablePliesNumbers] =
-    useUnit([
-      $brandFilter,
-      $pliesFilter,
-      $pliesNumberFilter,
-      $availablePliesNumbers,
-    ]);
+  const [
+    brandFilter,
+    pliesFilter,
+    pliesNumberFilter,
+    availablePliesNumbers,
+    collectionFilter,
+  ] = useUnit([
+    $brandFilter,
+    $pliesFilter,
+    $pliesNumberFilter,
+    $availablePliesNumbers,
+    $collectionFilter,
+  ]);
 
   const pliesNumberOptions = availablePliesNumbers.map((number) => ({
     value: number.toString(),
     label: number.toString(),
   }));
+
+  const collectionOptions = [
+    { value: Collection.All, label: "All Blades" },
+    { value: Collection.Popular, label: "Popular" },
+  ];
+
+  const handleCollectionChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const value = event.target.value as Collection;
+    setCollectionFilter(value);
+  };
 
   const handleBrandChange = (event: React.ChangeEvent<HTMLSelectElement>) => {
     const value = event.target.value;
@@ -60,6 +80,14 @@ export const FilterPanel: React.FC = () => {
     <div className="bg-white rounded-lg shadow-md p-6 mb-6">
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-4">
+          <Select
+            id="collection-filter"
+            label="Filter by Collection"
+            value={collectionFilter}
+            onChange={handleCollectionChange}
+            options={collectionOptions}
+          />
+
           <Select
             id="brand-filter"
             label="Filter by Brand"

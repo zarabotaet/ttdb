@@ -5,32 +5,43 @@ import {
   combine,
   restore,
 } from "effector";
-import { Blade, Brand, PlyMaterial } from "./types";
-
-export type LayerFilterCondition = {
-  layerIndex: number;
-  material: PlyMaterial;
-  shouldHave: boolean;
-};
+import {
+  Blade,
+  Brand,
+  Collection,
+  LayerFilterCondition,
+  PlyMaterial,
+} from "./types";
 
 export const setBrandFilter = createEvent<Brand | null>();
 export const setPliesFilter = createEvent<PlyMaterial | null>();
 export const setPliesNumberFilter = createEvent<number | null>();
-export const setLayerFilter = createEvent<LayerFilterCondition[]>();
 export const updateLayerFilterCondition = createEvent<LayerFilterCondition>();
 export const removeLayerFilterCondition = createEvent<{ layerIndex: number }>();
+export const setCollectionFilter = createEvent<Collection>();
 export const clearFilters = createEvent();
 
 export const $brandFilter = restore(setBrandFilter, null).reset(clearFilters);
-export const $pliesFilter = restore(setPliesFilter, null).reset(
-  clearFilters,
-  setLayerFilter
-);
+export const $pliesFilter = restore(setPliesFilter, null).reset(clearFilters);
 export const $pliesNumberFilter = restore(setPliesNumberFilter, null).reset(
   clearFilters
 );
+export const $collectionFilter = restore(
+  setCollectionFilter,
+  Collection.Popular
+).on(
+  [
+    clearFilters,
+    setBrandFilter,
+    setPliesFilter,
+    setPliesNumberFilter,
+    updateLayerFilterCondition,
+    removeLayerFilterCondition,
+  ],
+  () => Collection.All
+);
+
 export const $layerFilter = createStore<LayerFilterCondition[]>([])
-  .on(setLayerFilter, (_, conditions) => conditions)
   .on(updateLayerFilterCondition, (state, condition) => {
     const filtered = state.filter((c) => c.layerIndex !== condition.layerIndex);
     return [...filtered, condition];
@@ -54,6 +65,11 @@ export const $availablePliesNumbers = $blades.map((blades) => {
 export const $maximumPliesNumber = $availablePliesNumbers.map((numbers) =>
   Math.max(...numbers, 0)
 );
+export const $popularBlades = $blades.map((blades) =>
+  blades
+    .filter((blade) => blade.popular)
+    .sort((a, b) => a.popularityRank! - b.popularityRank!)
+);
 
 export const $filteredBlades = combine(
   $blades,
@@ -70,6 +86,7 @@ export const $filteredBlades = combine(
     ) {
       return blades;
     }
+
     return blades.filter((blade) => {
       if (brandFilter && blade.brand !== brandFilter) {
         return false;
@@ -116,16 +133,23 @@ export const $activeFilters = combine(
   $pliesFilter,
   $pliesNumberFilter,
   $layerFilter,
-  (brandFilter, pliesFilter, pliesNumberFilter, layerFilter) => {
+  $collectionFilter,
+  (
+    brandFilter,
+    pliesFilter,
+    pliesNumberFilter,
+    layerFilter,
+    collectionFilter
+  ) => {
     const filters: ActiveFilter[] = [];
 
-    if (
-      !brandFilter &&
-      !pliesFilter &&
-      pliesNumberFilter === null &&
-      layerFilter.length === 0
-    ) {
-      return filters;
+    if (collectionFilter === "popular") {
+      filters.push({
+        key: "collection",
+        label: "Collection: Popular",
+        onRemove: () => setCollectionFilter(Collection.All),
+        bgColor: "bg-yellow-500",
+      });
     }
 
     if (brandFilter) {

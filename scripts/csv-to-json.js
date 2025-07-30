@@ -37,6 +37,10 @@ async function convertCsvToJson() {
             pliesNumber: parseInt(row["Nb plies"], 10) || 0,
             weight: parseFloat(row["Weight (g)"]) || 0,
             thick: parseFloat(row["Thick. (mm)"]) || 0,
+            popular: row.Popular === "Yes",
+            popularityRank: row["Popularity Rank"]
+              ? parseInt(row["Popularity Rank"], 10)
+              : null,
             plies: [
               row["Ply 1"],
               row["Ply 2"],

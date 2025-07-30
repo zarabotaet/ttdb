@@ -2,6 +2,40 @@ const fs = require("fs");
 const path = require("path");
 
 /**
+ * Загружает конфигурацию популярных оснований
+ * @returns {Map} Map с ключами "brand|model" и значениями ранга популярности
+ */
+function loadPopularBlades() {
+  const popularBladesFile = path.join(__dirname, "popular_blades.json");
+
+  if (!fs.existsSync(popularBladesFile)) {
+    console.log(
+      "⚠️ Файл с популярными основаниями не найден, все основания будут помечены как непопулярные"
+    );
+    return new Map();
+  }
+
+  try {
+    const content = fs.readFileSync(popularBladesFile, "utf8");
+    const data = JSON.parse(content);
+    const popularMap = new Map();
+
+    data.popular_blades.forEach((blade) => {
+      const key = `${blade.brand}|${blade.model}`;
+      popularMap.set(key, blade.rank);
+    });
+
+    console.log(`📊 Загружено ${popularMap.size} популярных оснований`);
+    return popularMap;
+  } catch (error) {
+    console.log(
+      `⚠️ Ошибка при загрузке популярных оснований: ${error.message}`
+    );
+    return new Map();
+  }
+}
+
+/**
  * Парсит CSV файл и возвращает массив объектов
  * @param {string} filePath - путь к CSV файлу
  * @returns {Array} массив объектов с данными
@@ -77,6 +111,9 @@ function mergeCSVFiles() {
   console.log(`📁 Источник 2: ${manualFile}`);
   console.log(`📁 Результат: ${outputFile}`);
 
+  // Загружаем популярные основания
+  const popularBlades = loadPopularBlades();
+
   // Парсим оба файла
   const stervinouData = parseCSV(stervinouFile);
   const manualData = parseCSV(manualFile);
@@ -84,12 +121,12 @@ function mergeCSVFiles() {
   console.log(`📊 Данные из stervinou: ${stervinouData.length} записей`);
   console.log(`📊 Ручные данные: ${manualData.length} записей`);
 
-  // Определяем заголовки (используем из первого файла, который содержит данные)
+  // Определяем заголовки (добавляем колонку Popular)
   const headers =
     stervinouData.length > 0
-      ? Object.keys(stervinouData[0])
+      ? [...Object.keys(stervinouData[0]), "Popular", "Popularity Rank"]
       : manualData.length > 0
-      ? Object.keys(manualData[0])
+      ? [...Object.keys(manualData[0]), "Popular", "Popularity Rank"]
       : [
           "Brand",
           "Model",
@@ -105,31 +142,57 @@ function mergeCSVFiles() {
           "Ply 7",
           "Ply 8",
           "Ply 9",
+          "Popular",
+          "Popularity Rank",
         ];
 
   // Создаем Map для уникальных оснований
   const bladesMap = new Map();
   let addedCount = 0;
   let overriddenCount = 0;
+  let popularCount = 0;
 
   // Сначала добавляем данные из stervinou
   stervinouData.forEach((blade) => {
     const key = getBladeKey(blade);
-    bladesMap.set(key, { ...blade, source: "stervinou" });
+    const popularityRank = popularBlades.get(key);
+    const enhancedBlade = {
+      ...blade,
+      Popular: popularityRank ? "Yes" : "No",
+      "Popularity Rank": popularityRank || "",
+      source: "stervinou",
+    };
+
+    if (popularityRank) {
+      popularCount++;
+    }
+
+    bladesMap.set(key, enhancedBlade);
     addedCount++;
   });
 
   // Затем добавляем/перезаписываем ручными данными (приоритет выше)
   manualData.forEach((blade) => {
     const key = getBladeKey(blade);
+    const popularityRank = popularBlades.get(key);
+    const enhancedBlade = {
+      ...blade,
+      Popular: popularityRank ? "Yes" : "No",
+      "Popularity Rank": popularityRank || "",
+      source: "manual",
+    };
+
     if (bladesMap.has(key)) {
       console.log(`🔄 Перезаписываем: ${blade.Brand} ${blade.Model}`);
       overriddenCount++;
     } else {
       console.log(`➕ Добавляем новое: ${blade.Brand} ${blade.Model}`);
       addedCount++;
+      if (popularityRank) {
+        popularCount++;
+      }
     }
-    bladesMap.set(key, { ...blade, source: "manual" });
+    bladesMap.set(key, enhancedBlade);
   });
 
   // Конвертируем обратно в массив и удаляем служебное поле source
@@ -153,6 +216,7 @@ function mergeCSVFiles() {
   console.log("\n✅ Объединение завершено!");
   console.log(`📊 Итого записей: ${mergedData.length}`);
   console.log(`🔄 Перезаписано: ${overriddenCount}`);
+  console.log(`⭐ Популярных оснований: ${popularCount}`);
   console.log(`💾 Файл сохранен: ${outputFile}`);
 
   return outputFile;
@@ -168,4 +232,4 @@ if (require.main === module) {
   }
 }
 
-module.exports = { mergeCSVFiles };
+module.exports = { mergeCSVFiles, loadPopularBlades };
